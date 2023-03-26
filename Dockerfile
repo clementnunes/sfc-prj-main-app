@@ -2,7 +2,7 @@ FROM node:alpine
 
 WORKDIR /sfc-prj-main-app
 
-COPY api/package.json .
+COPY package.json .
 RUN npm install
 COPY . .
 RUN npm install -g typescript

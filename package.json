@@ -4,8 +4,8 @@
   "description": "Basic template of a node + typescript project",
   "main": "dist/index.js",
   "scripts": {
-    "build": "if [ -d \\\"dist\\\" ]; then rm -Rf ../dist; fi && tsc",
-    "build-w": "rmdir /s /q ../dist && tsc",
+    "build": "if [ -d \"dist\" ]; then rm -Rf dist; fi && tsc",
+    "build-w": "rmdir /s /q dist && tsc",
     "start": "npm run build && node dist/index.js",
     "start-w": "npm run build-w && node dist/index.js",
     "start-lint": "npm run lint && npm run build && node dist/index.js",

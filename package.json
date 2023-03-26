@@ -9,8 +9,8 @@
     "start": "npm run build && node dist/index.js",
     "start-w": "npm run build-w && node dist/index.js",
     "start-lint": "npm run lint && npm run build && node dist/index.js",
-    "lint": "../node_modules/.bin/eslint --fix src",
-    "test": "set NODE_ENV=test&&../node_modules/.bin/mocha --recursive dist/tests --exit --async-stack-traces --timeout 5000"
+    "lint": "eslint --fix src",
+    "test": "set NODE_ENV=test&&mocha --recursive dist/tests --exit --async-stack-traces --timeout 5000"
   },
   "author": "Thomas VEILLARD",
   "license": "ISC",

@@ -1,0 +1,133 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: TS application test, push to prod and preprod branches then build preproduction and production images
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    environment: development
+
+    services:
+      postgres:
+        image: postgres
+
+        env:
+          POSTGRES_USER: tutorial
+          POSTGRES_DB: iam
+          POSTGRES_PASSWORD: privatepassword
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm install
+      - run: npm run build
+      - run: npm test
+        
+  merge-master-into-prod:
+    runs-on: ubuntu-latest
+    environment: production
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Merge Master -> Production
+      uses: devmasx/merge-branch@master
+      with:
+        type: now
+        from_branch: master
+        target_branch: prod
+        github_token: ${{ secrets.TOKEN }}
+      
+  merge-master-into-preprod:
+    runs-on: ubuntu-latest
+    environment: preproduction
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Merge Master -> Preproduction
+      uses: devmasx/merge-branch@master
+      with:
+        type: now
+        from_branch: master
+        target_branch: preprod
+        github_token: ${{ secrets.TOKEN }}
+
+  build-preproduction:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    needs: merge-master-into-preprod
+    environment: preproduction
+
+    services:
+      postgres:
+        image: postgres
+
+        env:
+          POSTGRES_USER: tutorial
+          POSTGRES_DB: iam
+          POSTGRES_PASSWORD: privatepassword
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+        
+    - name: Build Docker image
+      run: |
+        docker-compose build
+        docker tag sfc-prj-main-app:latest veekz/sfc-prj-main-app-preproduction:latest
+        
+    - name: Publish image to Docker Hub
+      if: success()
+      run: |
+        echo "$DOCKER_HUB_PASSWORD" | docker login -u "veekz" --password-stdin
+        docker push veekz/m2-secure-coding-app-preproduction:latest
+
+  build-production:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+    needs: merge-master-into-prod
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: |
+        docker-compose build
+        docker tag sfc-prj-main-app:latest veekz/sfc-prj-main-app:latest
+        
+    - name: Publish image to Docker Hub
+      if: success()
+      run: |
+        echo "$DOCKER_HUB_PASSWORD" | docker login -u "veekz" --password-stdin
+        docker push veekz/sfc-prj-main-app:latest
+

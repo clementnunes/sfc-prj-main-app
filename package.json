@@ -1,0 +1,44 @@
+{
+  "name": "node-ts-template",
+  "version": "1.0.0",
+  "description": "Basic template of a node + typescript project",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "if [ -d \\\"dist\\\" ]; then rm -Rf ../dist; fi && tsc",
+    "build-w": "rmdir /s /q ../dist && tsc",
+    "start": "npm run build && node dist/index.js",
+    "start-w": "npm run build-w && node dist/index.js",
+    "start-lint": "npm run lint && npm run build && node dist/index.js",
+    "lint": "../node_modules/.bin/eslint --fix src",
+    "test": "set NODE_ENV=test&&../node_modules/.bin/mocha --recursive dist/tests --exit --async-stack-traces --timeout 5000"
+  },
+  "author": "Thomas VEILLARD",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/chai": "^4.3.4",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^15.12.2",
+    "@typescript-eslint/eslint-plugin": "^5.3.0",
+    "@typescript-eslint/parser": "^5.3.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.2.0",
+    "mocha": "^10.1.0",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@fastify/postgres": "^5.2.0",
+    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
+    "chai": "^4.3.7",
+    "class-validator": "^0.14.0",
+    "dotenv": "^16.0.3",
+    "fastify": "^4.11.0",
+    "fastify-plugin": "^4.5.0",
+    "json-loader": "^0.5.7",
+    "pg": "^8.8.0",
+    "typeorm": "^0.3.10"
+  }
+}

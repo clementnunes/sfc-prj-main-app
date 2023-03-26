@@ -106,7 +106,7 @@ jobs:
       if: success()
       run: |
         echo "$DOCKER_HUB_PASSWORD" | docker login -u "veekz" --password-stdin
-        docker push veekz/m2-secure-coding-app-preproduction:latest
+        docker push veekz/sfc-prj-main-app-preproduction:latest
 
   build-production:
     runs-on: ubuntu-latest

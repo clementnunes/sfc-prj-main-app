@@ -7,6 +7,8 @@ import {KafkaConfig} from "../config/kafka.config";
 import {use} from "chai";
 import { KafkaJS } from "../kafka"
 import {Kafka} from "kafkajs";
+import {UserService} from "../services/user-service";
+import {Repository} from "typeorm";
 
 const kafkaIns : KafkaJS = KafkaJS.getInstance()
 const kafka : Kafka = kafkaIns.kafka
@@ -15,6 +17,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
     const dbConn = DbConn.getInstance();
     const userRepo = dbConn.appDataSource.getRepository(User)
     const userController = new UserController(userRepo);
+    const userService: UserService = UserService.getInstance(userRepo)
 
     fastify.get('/', (request) => {
         return { hello: 'world' }
@@ -30,7 +33,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
 
     //fastify.post('/users', { schema }, async (request: FastifyRequest) => await userController.post(request));
 
-    fastify.post('/users', { schema }, async (request: FastifyRequest) => {
+    /*fastify.post('/users', { schema }, async (request: FastifyRequest) => {
         const userData : UserDTO = request.body as UserDTO;
 
         if(KafkaConfig.KAFKA_USAGE) {
@@ -40,14 +43,33 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
                     {value: JSON.stringify(userData)},
                 ],
             })
-
-            await kafkaIns.consumer.subscribe({topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true})
         }
+        else {
+            await userController.post(request)
+        }
+    });*/
 
-        await userController.post(request)
+    fastify.post('/users', { schema }, async (request: FastifyRequest) => {
+        if(KafkaConfig.KAFKA_USAGE) {
+            await kafkaIns.consumer.subscribe({topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true})
+
+            return await kafkaIns.consumer.run({
+                eachMessage: async ({message}) => {
+                    if (null === message || null === message.value)
+                        return;
+
+                    console.log({
+                        value: message.value.toString(),
+                    })
+                },
+            })
+        }
+        else {
+            await userController.post(request)
+        }
     });
 
-    fastify.get('/users', { }, async (request: FastifyRequest) => {
+    /*fastify.get('/users', { }, async (request: FastifyRequest) => {
         if(KafkaConfig.KAFKA_USAGE) {
             await kafkaIns.consumer.subscribe({topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true})
 
@@ -60,6 +82,22 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
                         value: message.value.toString(),
                     })
                 },
+            })
+        }
+        else {
+            await userController.getCollection()
+        }
+    });*/
+
+    fastify.get('/users', { }, async (request: FastifyRequest) => {
+        const users = await userService.findAll();
+
+        if(KafkaConfig.KAFKA_USAGE) {
+            await kafkaIns.producer.send({
+                topic: KafkaConfig.KAFKA_TOPIC,
+                messages: [
+                    { value: JSON.stringify(users) }
+                ]
             })
         }
         else {

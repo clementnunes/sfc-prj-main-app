@@ -17,7 +17,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
     const dbConn = DbConn.getInstance();
     const userRepo = dbConn.appDataSource.getRepository(User)
     const userController = new UserController(userRepo);
-    const userService: UserService = UserService.getInstance(userRepository)
+    const userService: UserService = UserService.getInstance(userRepo)
 
     fastify.get('/', (request) => {
         return { hello: 'world' }
@@ -52,6 +52,17 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
     fastify.post('/users', { schema }, async (request: FastifyRequest) => {
         if(KafkaConfig.KAFKA_USAGE) {
             await kafkaIns.consumer.subscribe({topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true})
+
+            return await kafkaIns.consumer.run({
+                eachMessage: async ({message}) => {
+                    if (null === message || null === message.value)
+                        return;
+
+                    console.log({
+                        value: message.value.toString(),
+                    })
+                },
+            })
         }
         else {
             await userController.post(request)

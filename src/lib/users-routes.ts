@@ -93,7 +93,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
         const users = await userService.findAll();
 
         if(KafkaConfig.KAFKA_USAGE) {
-            await kafkaIns.producer.send({
+            return await kafkaIns.producer.send({
                 topic: KafkaConfig.KAFKA_TOPIC,
                 messages: [
                     { value: JSON.stringify(users) }

@@ -44,6 +44,6 @@
     "librdkafka": "0.0.0",
     "pg": "^8.8.0",
     "typeorm": "^0.3.10",
-    "@fastify/kafka\n": "^2.1.0"
+    "@fastify/kafka": "^2.1.0"
   }
 }

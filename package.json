@@ -37,6 +37,7 @@
     "class-validator": "^0.14.0",
     "dotenv": "^16.0.3",
     "fastify": "^4.11.0",
+    "fastify-kafkajs": "^0.1.0",
     "fastify-plugin": "^4.5.0",
     "json-loader": "^0.5.7",
     "kafkajs": "^2.2.4",

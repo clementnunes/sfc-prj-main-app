@@ -33,22 +33,22 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
     fastify.post('/users', { schema }, async (request: FastifyRequest) => {
         const userData : UserDTO = request.body as UserDTO;
 
-        await kafkaIns.producer.send({
+        /*await kafkaIns.producer.send({
             topic: KafkaConfig.KAFKA_TOPIC,
             messages: [
                 { value: JSON.stringify(userData) },
             ],
         })
+         */
+        await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
 
         await userController.post(request)
-
-        await kafkaIns.producer.disconnect()
     });
 
     fastify.get('/users', { }, async (request: FastifyRequest) => {
         await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
 
-        await kafkaIns.consumer.run({
+        /*await kafkaIns.consumer.run({
             eachMessage: async ({ message }) => {
                 if(null === message || null === message.value)
                     return;
@@ -57,7 +57,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
                     value: message.value.toString(),
                 })
             },
-        })
+        })*/
 
         await userController.getCollection()
     });

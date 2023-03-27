@@ -33,16 +33,15 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
     fastify.post('/users', { schema }, async (request: FastifyRequest) => {
         const userData : UserDTO = request.body as UserDTO;
 
-        if(KafkaConfig.KAFKA_USAGE)
-        {
+        if(KafkaConfig.KAFKA_USAGE) {
             await kafkaIns.producer.send({
                 topic: KafkaConfig.KAFKA_TOPIC,
                 messages: [
-                    { value: JSON.stringify(userData) },
+                    {value: JSON.stringify(userData)},
                 ],
             })
 
-            await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
+            await kafkaIns.consumer.subscribe({topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true})
         }
 
         await userController.post(request)
@@ -63,8 +62,9 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
                 },
             })
         }
-
-        await userController.getCollection()
+        else {
+            await userController.getCollection()
+        }
     });
 
     done();

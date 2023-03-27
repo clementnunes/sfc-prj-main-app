@@ -41,7 +41,9 @@
     "fastify-plugin": "^4.5.0",
     "json-loader": "^0.5.7",
     "kafkajs": "^2.2.4",
+    "librdkafka": "0.0.0",
     "pg": "^8.8.0",
-    "typeorm": "^0.3.10"
+    "typeorm": "^0.3.10",
+    "@fastify/kafka": "^2.1.0"
   }
 }

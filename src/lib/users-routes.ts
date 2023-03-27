@@ -21,7 +21,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
         body: CreateUserRequestBodySchema,
     }
 
-    //fastify.post('/users', { schema }, async (request: FastifyRequest) => await userController.post(request));
+    fastify.post('/users', { schema }, async (request: FastifyRequest) => await userController.post(request));
 
     done();
 }

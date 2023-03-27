@@ -44,14 +44,13 @@ async function run() {
         consumers: [
             {
                 consumerConfig: {
-                    groupId: 'example-consumer-group'
+                    groupId: KafkaConfig.KAFKA_APP_NAME
                 },
                 subscription: {
-                    topics: ['test-topic'],
+                    topic: KafkaConfig.KAFKA_TOPIC,
                     fromBeginning: false
                 },
                 runConfig: {
-                    // eslint-disable-next-line @typescript-eslint/require-await
                     eachMessage: async ({ message }) => {
                         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                         console.log(`Consumed message: ${message.value}`);

@@ -3,12 +3,12 @@ import * as dotenv from 'dotenv'
 dotenv.config();
 
 export class EnvConfig {
-    static load(propertyName: string) : string|number
+    static load(propertyName: string) : string|number|boolean
     {
         return this.parse(propertyName);
     }
 
-    static parse(propertyName: string) : string|number
+    static parse(propertyName: string) : string|number|boolean
     {
         this.validate(propertyName)
 
@@ -16,6 +16,9 @@ export class EnvConfig {
 
         if(rawProperty == undefined)
             throw new ValidationError()
+
+        if(rawProperty === "true" || rawProperty === "false")
+            return (rawProperty === "true");
 
         return (/^\d$/.test(rawProperty))
             ? Number(rawProperty)

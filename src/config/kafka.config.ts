@@ -7,4 +7,6 @@ export class KafkaConfig {
     static KAFKA_APP_NAME : string = EnvConfig.load("KAFKA_APP_NAME") as string;
 
     static KAFKA_GROUP_NAME : string = EnvConfig.load("KAFKA_GROUP_NAME") as string;
+
+    static KAFKA_USAGE : boolean = EnvConfig.load("KAFKA_USAGE") as boolean;
 }

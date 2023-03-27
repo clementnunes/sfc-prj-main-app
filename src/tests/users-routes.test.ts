@@ -22,8 +22,6 @@ describe('/users', function () {
     const userRepo = dbConn.appDataSource.getRepository(User)
     const userService = UserService.getInstance(userRepo);
 
-
-
     let user: null|User = null;
 
     before(async () => {

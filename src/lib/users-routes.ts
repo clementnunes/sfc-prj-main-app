@@ -33,31 +33,36 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
     fastify.post('/users', { schema }, async (request: FastifyRequest) => {
         const userData : UserDTO = request.body as UserDTO;
 
-        /*await kafkaIns.producer.send({
-            topic: KafkaConfig.KAFKA_TOPIC,
-            messages: [
-                { value: JSON.stringify(userData) },
-            ],
-        })
-         */
-        await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
+        if(KafkaConfig.KAFKA_USAGE)
+        {
+            await kafkaIns.producer.send({
+                topic: KafkaConfig.KAFKA_TOPIC,
+                messages: [
+                    { value: JSON.stringify(userData) },
+                ],
+            })
+
+            await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
+        }
 
         await userController.post(request)
     });
 
     fastify.get('/users', { }, async (request: FastifyRequest) => {
-        await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
+        if(KafkaConfig.KAFKA_USAGE) {
+            await kafkaIns.consumer.subscribe({topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true})
 
-        /*await kafkaIns.consumer.run({
-            eachMessage: async ({ message }) => {
-                if(null === message || null === message.value)
-                    return;
+            await kafkaIns.consumer.run({
+                eachMessage: async ({message}) => {
+                    if (null === message || null === message.value)
+                        return;
 
-                console.log({
-                    value: message.value.toString(),
-                })
-            },
-        })*/
+                    console.log({
+                        value: message.value.toString(),
+                    })
+                },
+            })
+        }
 
         await userController.getCollection()
     });

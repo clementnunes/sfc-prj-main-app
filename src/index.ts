@@ -10,17 +10,17 @@ import {Kafka} from "kafkajs";
 import fastifyKafkaJS from "fastify-kafkajs";
 
 
-const kafka = new Kafka({
+/*const kafka = new Kafka({
     clientId: KafkaConfig.KAFKA_APP_NAME,
     brokers: [KafkaConfig.KAFKA_BOOTSTRAP_SERVER]
-})
+})*/
 
 async function run() {
     const dbConn = DbConn.getInstance();
     await dbConn._appDataSource.initialize()
 
 
-    const producer = kafka.producer()
+    /*const producer = kafka.producer()
 
     await producer.connect()
     await producer.send({
@@ -30,7 +30,7 @@ async function run() {
         ]
     })
 
-    await producer.disconnect()
+    await producer.disconnect()*/
 
     await server.register(DbConnector)
     await server.register(usersRoutes)
@@ -61,7 +61,7 @@ async function run() {
         ]
     });
 
-    server.post('/produce', async (request, reply) => {
+    server.post('/produce', async (request) => {
         return server.kafka.producer.send({
             topic: KafkaConfig.KAFKA_TOPIC,
             messages: [{ key: 'key1', value: "3" }]

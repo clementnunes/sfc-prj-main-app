@@ -23,6 +23,5 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
 
     //fastify.post('/users', { schema }, async (request: FastifyRequest) => await userController.post(request));
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     done();
 }

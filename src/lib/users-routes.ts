@@ -3,11 +3,13 @@ import {UserController} from "../controllers/UserController";
 import {User} from "../entities/user";
 import * as CreateUserRequestBodySchema from "../json_schema/create-user-request-body.schema.json"
 import {DbConn} from "../dbConn";
-import {KafkaJS} from "../kafka";
 import {KafkaConfig} from "../config/kafka.config";
 import {use} from "chai";
+import { KafkaJS } from "../kafka"
+import {Kafka} from "kafkajs";
 
-const kafka = KafkaJS.getInstance().kafka
+const kafkaIns : KafkaJS = KafkaJS.getInstance()
+const kafka : Kafka = kafkaIns.kafka
 
 export function usersRoutes (fastify: FastifyInstance, options: object, done: any) {
     const dbConn = DbConn.getInstance();
@@ -18,7 +20,7 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
         return { hello: 'world' }
     })
 
-    fastify.get('/users', () => userController.getCollection());
+    //fastify.get('/users', () => userController.getCollection());
 
     fastify.get<{ Params: { id: string } }>('/users/:id', async (request) => await userController.get(request.params.id));
 
@@ -26,14 +28,12 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
         body: CreateUserRequestBodySchema,
     }
 
+    //fastify.post('/users', { schema }, async (request: FastifyRequest) => await userController.post(request));
+
     fastify.post('/users', { schema }, async (request: FastifyRequest) => {
-        const producer = kafka.producer()
-
-        await producer.connect()
-
         const userData : UserDTO = request.body as UserDTO;
 
-        await producer.send({
+        await kafkaIns.producer.send({
             topic: KafkaConfig.KAFKA_TOPIC,
             messages: [
                 { value: JSON.stringify(userData) },
@@ -42,16 +42,13 @@ export function usersRoutes (fastify: FastifyInstance, options: object, done: an
 
         await userController.post(request)
 
-        await producer.disconnect()
+        await kafkaIns.producer.disconnect()
     });
 
-    fastify.get('/users', { schema }, async (request: FastifyRequest) => {
-        const consumer = kafka.consumer({ groupId: KafkaConfig.KAFKA_GROUP_NAME })
+    fastify.get('/users', { }, async (request: FastifyRequest) => {
+        await kafkaIns.consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
 
-        await consumer.connect()
-        await consumer.subscribe({ topic: KafkaConfig.KAFKA_TOPIC, fromBeginning: true })
-
-        await consumer.run({
+        await kafkaIns.consumer.run({
             eachMessage: async ({ message }) => {
                 if(null === message || null === message.value)
                     return;

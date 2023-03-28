@@ -32,78 +32,60 @@ export function usersRoutes(fastify: FastifyInstance, options: object, done: any
     );
 
     fastify.get('/consume-users', {}, async (request: FastifyRequest) => {
-        if (KafkaConfig.KAFKA_USAGE) {
-            await kafkaIns.consumer.run({
-                eachMessage: async ({message}) => {
-                    if (null === message || null === message.value)
-                        return;
+        await kafkaIns.consumer.run({
+            eachMessage: async ({message}) => {
+                if (null === message || null === message.value)
+                    return;
 
-                    console.log({
-                        value: message.value.toString(),
-                    })
-                },
-            });
-        }
+                console.log({
+                    value: message.value.toString(),
+                })
+            },
+        });
     });
 
-    fastify.get<{ Params: { id: string } }>('/consume-users-add', {}, async (request) => {
-        const id: string = request.params.id;
-        const user = await userService.findById(request.params.id);
+    fastify.get('/consume-users-add', {}, async (request) => {
+        await kafkaIns.consumer.run({
+            eachMessage: async ({message}) => {
+                if (null === message || null === message.value)
+                    return;
 
-        if (KafkaConfig.KAFKA_USAGE) {
-            await kafkaIns.consumer.run({
-                eachMessage: async ({message}) => {
-                    if (null === message || null === message.value)
-                        return;
+                const userData: UserDTO = message.value as unknown as UserDTO;
 
-                    const userData: UserDTO = message.value as unknown as UserDTO;
+                await userService.addAndPersist(
+                    userData.firstName,
+                    userData.lastName,
+                    userData.email,
+                    new SetPasswordDTO(userData.password, userData.confirmPassword)
+                )
 
-                    await userService.addAndPersist(
-                        userData.firstName,
-                        userData.lastName,
-                        userData.email,
-                        new SetPasswordDTO(userData.password, userData.confirmPassword)
-                    )
-
-                    console.log({
-                        value: message.value.toString(),
-                    })
-                },
-            });
-        } else {
-            return await userController.get(id);
-        }
+                console.log({
+                    value: message.value.toString(),
+                })
+            },
+        });
     });
 
     fastify.get<{ Params: { id: string } }>('/produce-users/:id', {}, async (request) => {
-        const id: string = request.params.id;
         const user = await userService.findById(request.params.id);
 
-        if (KafkaConfig.KAFKA_USAGE) {
-            return await kafkaIns.producer.send({
-                topic: KafkaConfig.KAFKA_TOPIC,
-                messages: [
-                    {value: JSON.stringify(user)}
-                ]
-            });
-        } else {
-            return await userController.get(id);
-        }
+        return await kafkaIns.producer.send({
+            topic: KafkaConfig.KAFKA_TOPIC,
+            messages: [
+                {value: JSON.stringify(user)}
+            ]
+        });
     });
 
     fastify.get('/produce-users', {}, async (request: FastifyRequest) => {
         const users = await userService.findAll();
 
-        if (KafkaConfig.KAFKA_USAGE) {
-            return await kafkaIns.producer.send({
-                topic: KafkaConfig.KAFKA_TOPIC,
-                messages: [
-                    {value: JSON.stringify(users)}
-                ]
-            });
-        } else {
-            return await userController.getCollection()
-        }
+        return await kafkaIns.producer.send({
+            topic: KafkaConfig.KAFKA_TOPIC,
+            messages: [
+                {value: JSON.stringify(users)}
+            ]
+        });
     });
 
     done();

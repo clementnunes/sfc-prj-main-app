@@ -5,23 +5,46 @@ export class KafkaJS {
     static INSTANCE : null|KafkaJS = null;
     readonly _kafka: Kafka;
 
-    readonly _consumer: Consumer;
+    private _consumer: undefined|Consumer;
 
-    readonly _producer: Producer;
+    private _producer: undefined|Producer;
+
+    static IS_INITIALIZED = false;
 
     private constructor() {
         this._kafka = new Kafka({
             clientId: KafkaConfig.KAFKA_GROUP_NAME,
             brokers: [KafkaConfig.KAFKA_BOOTSTRAP_SERVER],
-            logLevel: logLevel.DEBUG,
+            logLevel: logLevel.WARN,
             ssl: false
         })
+    }
+
+    public async init()
+    {
+        if(KafkaJS.IS_INITIALIZED)
+            return;
 
         this._consumer = this._kafka.consumer({ groupId: KafkaConfig.KAFKA_GROUP_NAME })
-        this._consumer.connect();
+        await this._consumer.connect();
 
         this._producer = this._kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
-        this._producer.connect();
+        await this._producer.connect();
+
+        /*await this._kafka.admin().createTopics({
+            validateOnly: false,
+            waitForLeaders: true,
+            timeout: 10000,
+            topics: [
+                {
+                    topic: KafkaConfig.KAFKA_TOPIC,
+                    numPartitions: 2,
+                    replicationFactor: 1
+                }
+            ]
+        })*/
+
+        KafkaJS.IS_INITIALIZED = true;
     }
 
     static getInstance()
@@ -39,11 +62,11 @@ export class KafkaJS {
 
     get consumer(): Consumer
     {
-        return this._consumer;
+        return (this._consumer as Consumer);
     }
 
     get producer(): Producer
     {
-        return this._producer;
+        return (this._producer as Producer);
     }
 }

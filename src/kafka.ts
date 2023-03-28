@@ -31,19 +31,6 @@ export class KafkaJS {
         this._producer = this._kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
         await this._producer.connect();
 
-        /*await this._kafka.admin().createTopics({
-            validateOnly: false,
-            waitForLeaders: true,
-            timeout: 10000,
-            topics: [
-                {
-                    topic: KafkaConfig.KAFKA_TOPIC,
-                    numPartitions: 2,
-                    replicationFactor: 1
-                }
-            ]
-        })*/
-
         KafkaJS.IS_INITIALIZED = true;
     }
 

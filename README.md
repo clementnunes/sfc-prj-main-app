@@ -2,7 +2,7 @@
 
 ## Overview
 
-sfc-prj-ms1 is a sub-project of sfc-prj. 
+sfc-prj-main-app is a sub-project of sfc-prj. 
 Web application following Microservice Architecture, using Kafka and ZooKeeper.
 
 ## Table of Contents

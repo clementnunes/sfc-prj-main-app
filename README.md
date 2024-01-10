@@ -4,7 +4,16 @@
 
 sfc-prj-main-app is a sub-project of sfc-prj. 
 Web application following Microservice Architecture, using Kafka and ZooKeeper.
+The Main Microservice is Producer and Consumer.
 
+The service has a Github Actions workflow file which has a few steps :
+
+-	**Test**: it setups test environment ; installing services such as Postgres and NodeJS, then it installs application dependencies, build the application and finally run the test suite.
+-	**merge-master-into-preprod**: once testing step is valid, it merges master branch into preproduction branch
+-	**merge-master-into-prod**: same logic but into production branch
+- **build-preproduction**: install services and application dependencies, build the application to build the Docker Hub image and publish it to Docker Hub.
+- **build-production**: same logic but the objective is to deploy the application to production
+  
 ## Table of Contents
 
 - [Installation](#installation)

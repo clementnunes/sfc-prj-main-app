@@ -47,7 +47,7 @@ The microservice works using NodeJS platform. They are written in TypeScript and
 -	Postgres: Postgres Client
 -	KafkaJS: Kafka Client for NodeJS applications
 -	Chai & Mocha: used for testing
--	Faker: Fake data generation
+-	Faker: Fake data generation.
 
 The microservices provide basic usage : create, modify, delete, get and get collection of User entity.
 The architecture is MVC with internal services.

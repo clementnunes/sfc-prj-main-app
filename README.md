@@ -3,15 +3,13 @@
 ## Overview
 
 sfc-prj-ms1 is a sub-project of sfc-prj. 
-Web application that focus on secure coding practice.
+Web application following Microservice Architecture, using Kafka and ZooKeeper.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
@@ -19,7 +17,7 @@ Clone the Repository:
 Open a terminal or command prompt and use the git clone command to clone the repository.
 
 ```
-git clone https://github.com/username/repository.git
+git clone https://github.com/clementnunes/sfc-prj-main-app
 ```
 
 Navigate to the Project Directory:
@@ -30,41 +28,21 @@ cd repository
 ```
 
 ## Usage
-Use without Docker
-```
-cd ... sfc-prj-main-app/
-npm install
-```
-For Windows:
-```
-npm run build-w
-npm run start-w
-```
+Use [sfc-prj](https://github.com/clementnunes/sfc-prj) to deploy the microservice application.
 
-For Linux:
-```
-npm run build
-npm run start
-```
-
-Also, you can run with LINT:
-```
-npm run-start-lint
-```
 
 ## Features
-- Setup instant-ready a main web application and two microservices
-- Generate Docker Images
-- CI/CD (Github Actions to develop workflows)
-- Deliver
+The microservice works using NodeJS platform. They are written in TypeScript and uses various dependencies:
+-	TypeORM: ORM for NodeJS applications, i.e., Javascript and Typescript
+-	Fastify: Web framework used to provide server features especially routing
+-	Postgres: Postgres Client
+-	KafkaJS: Kafka Client for NodeJS applications
+-	Chai & Mocha: used for testing
+-	Faker: Fake data generation
 
-## Contributing
-
-- Fork the repository.
-- Create a new branch: git checkout -b feature-name
-- Make your changes and commit them: git commit -m 'Add some feature'
-- Push to the branch: git push origin feature-name
-- Submit a pull request.
+The microservices provide basic usage : create, modify, delete, get and get collection of User entity.
+The architecture is MVC with internal services.
+The microservices are covered by several tests to ensure it’s running smoothly. The test suite is based on Chai and Mocha and tests internal services and also using routing feature.
 
 ## Contact
 
